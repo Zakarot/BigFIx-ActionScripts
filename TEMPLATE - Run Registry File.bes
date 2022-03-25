@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Task>
+		<Title>TEMPLATE - Run Registry File</Title>
+		<Description><![CDATA[&lt;enter a description of the task here&gt; ]]></Description>
+		<Relevance>true</Relevance>
+		<Category></Category>
+		<Source></Source>
+		<SourceID></SourceID>
+		<SourceSeverity></SourceSeverity>
+		<CVENames></CVENames>
+		<SANSID></SANSID>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Fri, 13 Dec 2019 17:27:25 +0000</Value>
+		</MIMEField>
+		<Domain>BESC</Domain>
+		<DefaultAction ID="Action1">
+			<Description>
+				<PreLink>Click </PreLink>
+				<Link>here</Link>
+				<PostLink> to deploy this action.</PostLink>
+			</Description>
+			<ActionScript MIMEType="application/x-Fixlet-Windows-Shell">//Create Reg Key
+//if {x64 of operating system}
+//	regset64 "[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer]" "Start"=dword:00000004
+//else
+//	regset "[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AdobeARMservice]" "Start"=dword:00000004
+//endif
+
+// Or use .reg file
+createfile until _EOF_
+
+//Contents of .reg go here
+
+_EOF_
+
+move __createfile "RegistryFix.reg"
+
+//Import Reg
+//waithidden reg import "RegistryFix.reg"
+
+//Clean up
+delete "RegistryFix.reg"</ActionScript>
+		</DefaultAction>
+	</Task>
+</BES>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Task>
+		<Title>TEMPLATE - Run Powershell Script</Title>
+		<Description><![CDATA[&lt;enter a description of the task here&gt; ]]></Description>
+		<Relevance>exists (pathname of file ((it as string) of value "Path" of key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" of native registry))</Relevance>
+		<Category></Category>
+		<Source></Source>
+		<SourceID></SourceID>
+		<SourceSeverity></SourceSeverity>
+		<CVENames></CVENames>
+		<SANSID></SANSID>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Mon, 27 Apr 2020 16:57:57 +0000</Value>
+		</MIMEField>
+		<Domain>BESC</Domain>
+		<DefaultAction ID="Action1">
+			<Description>
+				<PreLink>Click </PreLink>
+				<Link>here</Link>
+				<PostLink> to deploy this action.</PostLink>
+			</Description>
+			<ActionScript MIMEType="application/x-Fixlet-Windows-Shell">//Prep
+delete __createfile
+if {not exists folder "C:\Temp\"}
+	folder create "C:\Temp\"
+endif
+
+//Create Powershell script
+createfile until _EOF_
+
+//Powershell script goes here
+//Escape "{" with "{{"
+
+_EOF_
+
+//Move File to C:\Temp
+move __createfile C:\Temp\run_{id of active action}.ps1
+
+//No wow64 redirection
+action uses wow64 redirection {not x64 of operating system}
+
+//Run as system
+waithidden { pathname of file ((it as string) of value "Path" of key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" of native registry) } -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -File "C:\Temp\run_{id of active action}.ps1"
+
+////Run as current user
+////Set Permissions
+//dos icacls "C:\Temp\run_{id of active action}.ps1" /grant "Authenticated Users":RX /t																											 
+////Execute																									 
+//override wait
+//hidden=true
+//runas=currentuser
+//completion=process
+//wait { pathname of file ((it as string) of value "Path" of key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" of native registry) } -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -File "C:\Temp\run_{id of active action}.ps1"
+
+//Clean up
+delete "C:\Temp\run_{id of active action}.ps1"</ActionScript>
+		</DefaultAction>
+	</Task>
+</BES>

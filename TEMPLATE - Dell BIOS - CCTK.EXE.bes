@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Task>
+		<Title>TEMPLATE - Dell BIOS - CCTK.EXE</Title>
+		<Description><![CDATA[<P>Error Codes: <A href="https://www.dell.com/support/article/us/en/04/sln311128/dell-client-configuration-toolkit-cctk-error-codes?lang=en">https://www.dell.com/support/article/us/en/04/sln311128/dell-client-configuration-toolkit-cctk-error-codes?lang=en</A></P>
+<P>5-12-2020: Updated CCTK files from 4.1 to 4.3</P>]]></Description>
+		<Relevance> /* DELL Only */ exists values "vendor" whose(it as string as uppercase contains "DELL") of structures "bios_information" of smbios </Relevance>
+		<Relevance>/*64 Bit Only*/ (x64 of it) of operating system AND TRUE</Relevance>
+		<Category>BIOS</Category>
+		<DownloadSize>1062953</DownloadSize>
+		<Source></Source>
+		<SourceID></SourceID>
+		<SourceSeverity></SourceSeverity>
+		<CVENames></CVENames>
+		<SANSID></SANSID>
+		<MIMEField>
+			<Name>x-fixlet-source</Name>
+			<Value>Software Distribution Wizard</Value>
+		</MIMEField>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Tue, 12 May 2020 15:31:59 +0000</Value>
+		</MIMEField>
+		<Domain>BESC</Domain>
+		<DefaultAction ID="Action1">
+			<Description>
+				<PreLink>Click </PreLink>
+				<Link>here </Link>
+				<PostLink>to initiate the deployment process.</PostLink>
+			</Description>
+			<ActionScript MIMEType="application/x-Fixlet-Windows-Shell"><![CDATA[action parameter query "BIOSPwd" with description "Enter BIOS Password, or leave blank if none." and with default value " "
+
+prefetch ee58937ca3102c59b046806c5d714019b6499f69 sha1:ee58937ca3102c59b046806c5d714019b6499f69 size:1062953 http://S1BIGFIXAPP01.scbandt.com:52311/Uploads/ee58937ca3102c59b046806c5d714019b6499f69/.tmp sha256:15ad3e9b059039c293669bbfc9732956a67c29b746c64e0f06482765774ffd9c
+extract ee58937ca3102c59b046806c5d714019b6499f69
+
+action uses wow64 redirection {not x64 of operating system}
+action requires restart
+
+parameter "PowerShellExe"="{ pathname of file ((it as string) of value "Path" of key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" of native registry) }"
+
+delete __createfile
+delete powershell.ps1
+
+createfile until _end_
+Suspend-BitLocker -MountPoint "{name of drive of system folder}" -RebootCount 1
+_end_
+
+move __createfile powershell.ps1
+
+if {(exists wmi "root\CIMv2\Security\MicrosoftVolumeEncryption" whose (exists select objects "ProtectionStatus, DriveLetter from Win32_EncryptableVolume" whose (integer value of property "ProtectionStatus" of it = 1 AND string value of property "DriveLetter" of it = "C:") of it))}
+	waithidden "{parameter "PowershellExe"}" -ExecutionPolicy Bypass -File powershell.ps1
+endif
+
+//Append cctk.exe parameters to the two command strings below
+if{ ( 4 <= length of (it as trimmed string) of (parameter "BIOSPwd") ) }
+    waithidden __Download\cctk.exe --valsetuppwd={ (parameter "BIOSPwd") as trimmed string }
+else
+    waithidden __Download\cctk.exe
+endif]]></ActionScript>
+			<SuccessCriteria Option="RunToCompletion"></SuccessCriteria>
+		</DefaultAction>
+	</Task>
+</BES>
